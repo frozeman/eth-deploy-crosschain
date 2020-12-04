@@ -1,0 +1,35 @@
+{
+  "name": "eth-deploy-crosschain",
+  "description": "",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "ethereum",
+    "create1",
+    "nicks method",
+    "deploy"
+  ],
+  "authors": [
+    {
+      "name": "Fabian Vogelsteller",
+      "email": "fabian@lukso.network",
+      "homepage": "https://github.com/frozeman"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/frozeman/eth-deploy-crosschain/issues"
+  },
+  "homepage": "https://github.com/frozeman/eth-deploy-crosschain#readme",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "eth-lib": "^0.1.29",
+    "ethereumjs-tx": "^2.1.2",
+    "ethers": "^5.0.19"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1"
+  }
+}
