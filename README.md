@@ -5,11 +5,14 @@ This method is known as [Nick's method](https://medium.com/@weka/how-to-send-eth
 
 1. We generate a transaction from a new random account.
    This transaction MUST NOT use EIP-155 in order to work on any chain.
-   This transaction MUST have a relatively high gas price to be deployed on any chain. In this case, it is going to be 200 Gwei.
-2. We replace the r, s, v values with static ones. This makes the transaction beein signed by a random address, where nobody know the privatekey of
-3. We recover the signer from the raw transaction
-4. We send sufficient native token to the account, and send the raw transaction to the blockchain
-5. The contract deploys at a fixed address, and the same rawTransaction can be used on other EVM networks as well, by simply repeating step 4.
+   This transaction MUST have a relatively high gas price to be deployed on any chain. Default is 200 GWEI.
+   The gas limit should be chosen, to be just enough to deploy the contract, otherwise you would need to over-fund the deployer address.
+2. We replace the r, s values with `0x1234...` and v with 27. This signs by a random address of which nobody knows the private key.
+3. We recover the signer from the raw transaction to get the deployer address.
+4. We send sufficient native coins of the blockchain to the account, and send the raw transaction (e.g. using `web3.eth.sendSignedTransaction(rawTx)`)
+5. The contract deploys at the fixed address, and the same rawTransaction can be used on other EVM blockchains, by repeating step 4.
+
+*NOTE*: The gas limit should be chosen, to be just enough to deploy the contract, otherwise you would need to over-fund the deployer address.
 
 Other useful tools by me:
  
@@ -38,8 +41,8 @@ generateCrossChainTransaction(byteCode [, options])
 The optional options object structure:
 ```js
 options = {
-    gas: Number, // default: 4000000
-    gasPrice: String, // default: 200 gwei (200000000000) // gas price in WEI, should be choosen high, as future gasprices are not predictable
+    gas: Number, // default: 4000000 // Set this yourself!! The gas limit should be chosen, to be just enough to deploy the contract, otherwise you would need to over-fund the deployer address.
+    gasPrice: String, // default: 200 GWEI (200000000000) // gas price in WEI, should be choosen high enough, as this transaction might not be able to be used in with future gasprices, and on other chains.
     constructorArgs: {
         params: [value],
         types: [type] // can be a solidty type (`address`, `bytes32`, `string`, `uint256`, etc)
@@ -59,8 +62,8 @@ const someByteCode = '0x60806040523480156200001157600080fd5b50604051620012ec3803
 
 ```js
 let deployTx = generateCrossChainTransaction(someByteCode, {
-    gas: 5000000,
-    gasPrice: '200000000000' // 200 gWEI
+    gas: 800000, // Chose just enough to deploy the contract, otherwise you need to over-fund the deployer address
+    gasPrice: '100000000000' // 100 gWEI, should be choosen high enough
 })
 > {
       deployerAddress: '0x6F0993616c3Ee76309C383e2BdbB48945Ab986E5', // this account needs native token, and then 
@@ -69,6 +72,11 @@ let deployTx = generateCrossChainTransaction(someByteCode, {
   }
 
 // fund account deployTx.deployerAddress: 0x6F0993616c3Ee76309C383e2BdbB48945Ab986E5
+await web3.eth.web3.eth.sendTransaction({
+    from: '0x...',
+    to: '0x6F0993616c3Ee76309C383e2BdbB48945Ab986E5',
+    value: 200000000000000 // whatever is necessary to deploy the contractß
+})
 
 // send the raw transaction, e.g.
 let receipt = await web3.eth.web3.eth.sendSignedTransaction(deployTx.rawTransaction)
@@ -81,6 +89,7 @@ let receipt = await web3.eth.web3.eth.sendSignedTransaction(deployTx.rawTransact
 
 ```js
 generateCrossChainTransaction(someByteCode, {
+    gas: 800000, // Chose just enough to deploy the contract, otherwise you need to over-fund the deployer address
     constructorArgs: {
         params: ['0x5b38da6a701c568545dcfcb03fcb875f56beddc4']
         types: ['address']
